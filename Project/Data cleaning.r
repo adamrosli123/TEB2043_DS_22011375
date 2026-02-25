@@ -1,7 +1,7 @@
 library(tidyverse)
 library(lubridate)
 
-# 2. DATA INGESTION & PRE-PROCESSING
+# 1. DATA INGESTION & PRE-PROCESSING
 # Read the raw lines of the file as text
 raw_lines <- read_lines("UncleanDataset.csv", locale = locale(encoding = "latin1"))
 
@@ -43,7 +43,7 @@ colnames(df_raw) <- target_cols
 # Convert all empty strings "" to NA so R treats them properly as missing data
 df_raw <- df_raw %>% na_if("")
 
-# 3. CONSOLIDATED CLEANING PIPELINE
+# 2. CONSOLIDATED CLEANING PIPELINE
 df_clean <- df_raw %>%
   # A. Fix mixed-up Gender and Age (e.g., when Gender column accidentally says "M 25")
   mutate(
@@ -107,7 +107,7 @@ df_clean <- df_raw %>%
     )
   )
 
-# 4. REMOVE DUPLICATES & EMPTY ROWS
+# 3. REMOVE DUPLICATES & EMPTY ROWS
 df_clean <- df_clean %>%
   # Remove rows that are entirely blank in the key identification columns
   filter(!(is.na(Student_ID) & is.na(First_Name) & is.na(Last_Name) & is.na(Age))) %>%
@@ -116,7 +116,7 @@ df_clean <- df_clean %>%
   slice(1) %>% # Keep only the first occurrence of each Student ID
   ungroup()
 
-# 5. FIX MISSING IDs & OUTLIERS
+# 4. FIX MISSING IDs & OUTLIERS
 # Generate consecutive unique IDs for rows missing a Student ID
 if (any(is.na(df_clean$Student_ID))) {
   missing_count <- sum(is.na(df_clean$Student_ID))
@@ -135,7 +135,7 @@ df_clean <- df_clean %>%
     Total_Payments = if_else(Total_Payments > upper_limit, upper_limit, Total_Payments)
   )
 
-# 6. FINAL IMPUTATION (Filling in missing values)
+# 5. FINAL IMPUTATION (Filling in missing values)
 # A simple custom function to calculate the Mode (most frequent value) for categorical data
 get_mode <- function(v) {
   v <- na.omit(v)
@@ -154,5 +154,5 @@ df_final <- df_clean %>%
   ) %>%
   arrange(Student_ID) # Sort the dataset neatly by ID at the end
 
-# 7. EXPORT
+# 6. EXPORT
 write_csv(df_final, "CleanedDataset.csv")
