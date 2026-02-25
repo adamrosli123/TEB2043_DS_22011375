@@ -41,7 +41,7 @@ df_raw <- as.data.frame(do.call(rbind, parsed_rows), stringsAsFactors = FALSE)
 colnames(df_raw) <- target_cols
 
 # Convert all empty strings "" to NA so R treats them properly as missing data
-df_raw <- df_raw %>% na_if("")
+df_raw <- df_raw %>% mutate(across(everything(), ~na_if(., "")))
 
 # 2. CONSOLIDATED CLEANING PIPELINE
 df_clean <- df_raw %>%
